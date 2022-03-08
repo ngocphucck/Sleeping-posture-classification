@@ -22,7 +22,7 @@ def log(logger, cfg, status):
                 'Epoch: [{}]',
                 '[{' + space_fmt + '}/{}]',
                 'learning_rate: {lr:.6f}',
-                '{meters}',
+                # '{meters}',
                 # 'eta: {eta}',
                 # 'batch_cost: {btime}',
                 # 'data_cost: {dtime}',

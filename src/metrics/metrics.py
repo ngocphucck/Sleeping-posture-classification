@@ -16,7 +16,7 @@ class Metric(object):
     def accumulate(self):
         pass
 
-    def log(self):
+    def log(self, logger):
         pass
 
     def get_results(self):
@@ -51,3 +51,7 @@ class AccuracyMetric(Metric):
 
     def get_results(self):
         return self.eval_result
+
+    def log(self, logger):
+
+        return f"Average accuracy: {self.get_results()}"

@@ -62,7 +62,8 @@ _C.SOLVER = CN()
 _C.SOLVER.NUM_EPOCHS = 30
 _C.SOLVER.DEVICE = 'cpu'
 _C.SOLVER.LR = 1e-4
-_C.SOLVER.LOG_ITER = 50
+_C.SOLVER.LOG_ITER = 1
+_C.SOLVER.CHECKPOINT_DIR = '../checkpoints'
 
 
 def get_cfg_defaults():

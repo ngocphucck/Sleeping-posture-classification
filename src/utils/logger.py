@@ -23,3 +23,8 @@ def setup_logger(name, save_dir=None, distributed_rank=0):
         logger.addHandler(fh)
 
     return logger
+
+
+if __name__ == '__main__':
+    logger = setup_logger(__name__, '.')
+    logger.debug("Hello man")
