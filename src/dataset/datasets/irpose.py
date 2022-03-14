@@ -1,7 +1,7 @@
 from torch.utils.data import Dataset
 import cv2
 
-from src.utils.utils_io import read_json
+from src.utils.helpers import read_json
 
 
 class IRPoseDataset(Dataset):

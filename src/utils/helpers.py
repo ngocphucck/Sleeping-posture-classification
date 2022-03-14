@@ -2,6 +2,23 @@ import json
 import os
 from tqdm import tqdm
 import yaml
+import logging
+
+
+_logger = logging.getLogger(__name__)
+
+
+def load_state_dict(checkpoint_path):
+    if checkpoint_path and os.path.isfile(checkpoint_path):
+        pass
+    else:
+        _logger.error("No checkpoint found at '{}'".format(checkpoint_path))
+        raise FileNotFoundError()
+
+
+def load_checkpoint(model, checkpoint_path, strict=True):
+    state_dict = load_state_dict(checkpoint_path)
+    model.load_state_dict(state_dict, strict)
 
 
 def read_json(json_path):

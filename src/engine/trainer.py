@@ -1,9 +1,8 @@
 import torch
-import os
 from tqdm import tqdm
 
 from src.utils.logger import setup_logger
-from .log_utils import log
+from .helpers import log
 
 
 logger = setup_logger('engine')
@@ -75,16 +74,16 @@ class Trainer(object):
                 self.metric.update(categorical_probs, labels)
 
 
-def do_train(cfg, model, train_loader, val_loader, criterion1, criterion2,
+def do_train(cfg, model, checkpoint_saver, train_loader, val_loader, criterion1, criterion2,
              optimizer, metric):
 
     engine = Trainer(model, train_loader, val_loader, criterion1, criterion2, optimizer,
                      metric, cfg.SOLVER.DEVICE, cfg.LOSS.LOSS_RATIO)
     epochs = cfg.SOLVER.NUM_EPOCHS
-    best_accuracy = 0
 
     engine.status.update({
         'epoch_id': 0,
+        'step_id': 0,
         'step_train_id': 0,
         'step_val_id': 0,
         'steps_per_train_epoch': len(train_loader),
@@ -109,13 +108,11 @@ def do_train(cfg, model, train_loader, val_loader, criterion1, criterion2,
         engine.val_epoch()
         metric.accumulate()
         engine.status['val_accuracy'] = metric.get_results()
-        logger.info('Validating: ' + metric.log())
+        logger.info('Validating: ' + metric.log(logger))
         metric.reset()
 
-        if engine.status['val_accuracy'] > best_accuracy:
-            best_accuracy = engine.status['val_accuracy']
-            torch.save(model.state_dict(), os.path.join(cfg.SOLVER.CHECKPOINT_DIR, 'best_model.pth'))
-            logger.info("Best test accuracy is {:0.3f}.".format(best_accuracy))
+        checkpoint_saver.save_checkpoint(epoch=engine.status['epoch_id'],
+                                         metric=engine.status['val_accuracy'])
 
 
 if __name__ == '__main__':

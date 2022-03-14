@@ -15,22 +15,34 @@ $ cd tools
 $ python train.py
 </pre>
 
+<h2>Components</h2>
+<table>
+<tr valign="bottom" align="center">
+    <th>Backbones</th>
+    <th>Loss functions</th>
+    <th>Optimizer</th>
+</tr>
+<tr valign="top">
+    <td>
+    <ul>
+        <li>Efficientnet</li>
+        <li>ConvNeXt</li>
+    </ul>
+    </td>
+    <td>
+    <ul>
+        <li>AMSoftmax</li>
+    </ul>
+    </td>
+    <td>
+        <li>Adam</li>
+    </td>
+</tr>
+</table>
+
 <h2>Future works</h2>
 <p>
 &#x2610; Multiple extractors <br>
 &#x2610; Data augmentations <br>
 &#x2610; Multiple loss functions <br>
 </p>
-
-<h2 class="citations">Citations</h2>
-<pre>
-@INPROCEEDINGS{9585289,
-  author={Doan, Ngoc Phu and Pham, Nguyen Duc Anh and Pham, Hung Manh and Nguyen, Huu Trung and Nguyen, Thuy Anh and Nguyen, Huy Hoang},
-  booktitle={2021 International Conference on Multimedia Analysis and Pattern Recognition (MAPR)}, 
-  title={Real-time Sleeping Posture Recognition For Smart Hospital Beds}, 
-  year={2021},
-  volume={},
-  number={},
-  pages={1-6},
-  doi={10.1109/MAPR53640.2021.9585289}}
-</pre>

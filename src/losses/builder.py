@@ -1,4 +1,4 @@
-from .am_softmax import AMSoftmax
+from .amsoftmax import AMSoftmax
 
 
 def make_loss_fn(cfg):

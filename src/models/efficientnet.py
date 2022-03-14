@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 from torchsummary import summary
 
-from .utils import (
+from .helpers import (
     round_filters,
     round_repeats,
     drop_connect,
@@ -15,6 +15,7 @@ from .utils import (
     MemoryEfficientSwish,
     calculate_output_image_size
 )
+from src.utils import register_model, create_model
 
 
 VALID_MODELS = (
@@ -274,12 +275,12 @@ class EfficientNet(nn.Module):
         # Convolution layers
         x = self.extract_features(inputs)
         # Pooling and final linear layer
-        x = self._avg_pooling(x)
+        feats = self._avg_pooling(x)
         if self._global_params.include_top:
-            x = x.flatten(start_dim=1)
-            x = self._dropout(x)
-            x = self._fc(x)
-        return x
+            feats = feats.flatten(start_dim=1)
+            feats = self._dropout(feats)
+            probs = self._fc(feats)
+        return feats, probs
 
     @classmethod
     def from_name(cls, model_name, in_channels=3, **override_params):
@@ -371,25 +372,17 @@ class EfficientNet(nn.Module):
             self._conv_stem = Conv2d(in_channels, out_channels, kernel_size=3, stride=2, bias=False)
 
 
-class Identity(nn.Module):
-    def __init__(self):
-        super(Identity, self).__init__()
-
-    def forward(self, x):
-        return x
-
-
-def build_extractor(model_name='efficientnet-b0', pretrained=False, **kwargs):
+@register_model
+def efficientnet_b0(model_name='efficientnet-b0', pretrained=False, **kwargs):
+    num_classes = kwargs['num_classes'] if 'num_classes' in kwargs else 1000
     if pretrained:
-        model = EfficientNet.from_pretrained(model_name)
+        model = EfficientNet.from_pretrained(model_name, num_classes=num_classes)
     else:
-        model = EfficientNet.from_name(model_name)
+        model = EfficientNet.from_name(model_name, num_classes=num_classes)
 
-    model._dropout = Identity()
-    model._fc = Identity()
     return model
 
 
 if __name__ == '__main__':
-    model = build_extractor()
-    summary(model, input_size=(3, 112, 112))
+    model = create_model('efficientnet_b0', pretrained=False, num_classes=9)
+    print(model)

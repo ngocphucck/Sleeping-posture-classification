@@ -6,7 +6,7 @@ def log(logger, cfg, status):
     if mode == 'train':
         epoch_id = status['epoch_id']
         step_id = status['step_id']
-        steps_per_epoch = status['steps_per_epoch']
+        steps_per_epoch = status['steps_per_train_epoch']
         # batch_time = status['batch_time']
         # data_time = status['data_time']
         # epochs = cfg['epochs']
