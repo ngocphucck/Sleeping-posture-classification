@@ -280,7 +280,7 @@ class EfficientNet(nn.Module):
             feats = feats.flatten(start_dim=1)
             feats = self._dropout(feats)
             probs = self._fc(feats)
-        return feats, probs
+        return probs
 
     @classmethod
     def from_name(cls, model_name, in_channels=3, **override_params):

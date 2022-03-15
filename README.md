@@ -31,7 +31,7 @@ $ python train.py
     </td>
     <td>
     <ul>
-        <li>AMSoftmax</li>
+        <li>Cross Entropy</li>
     </ul>
     </td>
     <td>

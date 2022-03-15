@@ -109,7 +109,7 @@ class ConvNeXt(nn.Module):
     def forward(self, x):
         feats = self.forward_features(x)
         probs = self.head(feats)
-        return feats, probs
+        return probs
 
 
 class LayerNorm(nn.Module):

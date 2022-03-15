@@ -10,14 +10,12 @@ logger = setup_logger('engine')
 
 class Trainer(object):
     def __init__(self, model, train_loader, val_loader,
-                 criterion1, criterion2, optimizer, metric, device, loss_ratio=1.0):
+                 criterion, optimizer, metric, device):
         self.model = model
         self.train_loader = train_loader
         self.val_loader = val_loader
-        self.criterion1 = criterion1
-        self.criterion2 = criterion2
+        self.criterion = criterion
         self.optimizer = optimizer
-        self.loss_ratio = loss_ratio
         self.metric = metric
         self.device = device
 
@@ -35,10 +33,8 @@ class Trainer(object):
             labels = labels.to(self.device)
             self.optimizer.zero_grad()
 
-            features, categorical_probs = self.model(images)
-            loss1 = self.criterion1(features, labels)
-            loss2 = self.criterion2(categorical_probs, labels)
-            loss = loss1 * self.loss_ratio + loss2
+            categorical_probs = self.model(images)
+            loss = self.criterion(categorical_probs, labels)
 
             loss.backward()
             self.status['loss'] = loss.item()
@@ -61,12 +57,9 @@ class Trainer(object):
                 self.status['step_val_id'] += 1
                 images = images.to(self.device)
                 labels = labels.to(self.device)
-                features, categorical_probs = self.model(images)
+                categorical_probs = self.model(images)
 
-                loss1 = self.criterion1(features, labels)
-                loss2 = self.criterion2(categorical_probs, labels)
-                loss = loss1 * self.loss_ratio + loss2
-
+                loss = self.criterion(categorical_probs, labels)
                 self.status['loss'] = loss.item()
                 val_epoch_iterator.set_description(
                     "Validating (Epoch %d) (loss=%2.5f)" % (self.status['epoch_id'], self.status['loss'])
@@ -74,11 +67,11 @@ class Trainer(object):
                 self.metric.update(categorical_probs, labels)
 
 
-def do_train(cfg, model, checkpoint_saver, train_loader, val_loader, criterion1, criterion2,
+def do_train(cfg, model, checkpoint_saver, train_loader, val_loader, criterion,
              optimizer, metric):
 
-    engine = Trainer(model, train_loader, val_loader, criterion1, criterion2, optimizer,
-                     metric, cfg.SOLVER.DEVICE, cfg.LOSS.LOSS_RATIO)
+    engine = Trainer(model, train_loader, val_loader, criterion, optimizer,
+                     metric, cfg.SOLVER.DEVICE)
     epochs = cfg.SOLVER.NUM_EPOCHS
 
     engine.status.update({
