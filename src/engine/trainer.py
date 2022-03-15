@@ -4,17 +4,18 @@ from src.utils.logger import setup_logger
 from src.metrics import MetricLogger, SmoothedValue
 
 
-logger = setup_logger('engine')
+logger = setup_logger('engine', save_dir='../logs')
 
 
 class Trainer(object):
     def __init__(self, model, train_loader, val_loader,
-                 criterion, optimizer, metric, device):
+                 criterion, optimizer, lr_scheduler, metric, device):
         self.model = model
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.criterion = criterion
         self.optimizer = optimizer
+        self.lr_scheduler = lr_scheduler
         self.metric = metric
         self.device = device
 
@@ -24,7 +25,7 @@ class Trainer(object):
         self.model.train()
         metric_logger = MetricLogger(logger=logger, delimiter=" ")
         metric_logger.add_meter('loss', SmoothedValue(window_size=len(self.train_loader), fmt='{value:.6f}'))
-        metric_logger.add_meter('acc', SmoothedValue(window_size=len(self.train_loader), fmt='{value:.2f}'))
+        metric_logger.add_meter('acc', SmoothedValue(window_size=len(self.train_loader), fmt='{value:.4f}'))
         header = 'Epoch: [{}]'.format(self.status['epoch'])
         print_freq = 10
 
@@ -42,6 +43,11 @@ class Trainer(object):
 
             metric_logger.update(loss=loss.item())
             metric_logger.update(acc=self.metric(categorical_probs, labels))
+
+        self.lr_scheduler.step()
+        if self.status['lr'] != self.lr_scheduler.get_last_lr():
+            print("Learning rate is changed to {}".format(self.status['lr']))
+        self.status['lr'] = self.lr_scheduler.get_last_lr()
         print("Averaged stats:", metric_logger)
 
     def val_epoch(self):
@@ -69,9 +75,9 @@ class Trainer(object):
 
 
 def do_train(cfg, model, checkpoint_saver, train_loader, val_loader, criterion,
-             optimizer, metric):
+             optimizer, lr_scheduler, metric):
 
-    engine = Trainer(model, train_loader, val_loader, criterion, optimizer,
+    engine = Trainer(model, train_loader, val_loader, criterion, optimizer, lr_scheduler,
                      metric, cfg.SOLVER.DEVICE)
     epochs = cfg.SOLVER.NUM_EPOCHS
 
@@ -79,7 +85,7 @@ def do_train(cfg, model, checkpoint_saver, train_loader, val_loader, criterion,
         'epoch': 0,
         'steps_per_train_epoch': len(train_loader),
         'steps_per_val_epoch': len(val_loader),
-        'lr': cfg.SOLVER.LR
+        'lr': cfg.OPTIM.LR
     })
 
     for epoch_id in range(epochs):
