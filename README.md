@@ -16,11 +16,11 @@ $ python train.py
 </pre>
 
 <h2>Components</h2>
-<table>
+<table align="center">
 <tr valign="bottom" align="center">
-    <th>Backbones</th>
-    <th>Loss functions</th>
-    <th>Optimizer</th>
+    <td>Backbones</td>
+    <td>Loss functions</td>
+    <td>Optimizers</td>
 </tr>
 <tr valign="top">
     <td>
