@@ -1,8 +1,7 @@
 import torch
-from tqdm import tqdm
 
 from src.utils.logger import setup_logger
-from .helpers import log
+from src.metrics import MetricLogger, SmoothedValue
 
 
 logger = setup_logger('engine')
@@ -23,12 +22,14 @@ class Trainer(object):
 
     def train_epoch(self):
         self.model.train()
-        train_epoch_iterator = tqdm(self.train_loader,
-                                    desc="Training (X / X Steps) (loss=X.X)",
-                                    bar_format="{l_bar}{r_bar}",
-                                    dynamic_ncols=True)
-        for images, labels in train_epoch_iterator:
-            self.status['step_train_id'] += 1
+        metric_logger = MetricLogger(logger=logger, delimiter=" ")
+        metric_logger.add_meter('loss', SmoothedValue(window_size=len(self.train_loader), fmt='{value:.6f}'))
+        metric_logger.add_meter('acc', SmoothedValue(window_size=len(self.train_loader), fmt='{value:.2f}'))
+        header = 'Epoch: [{}]'.format(self.status['epoch'])
+        print_freq = 10
+
+        for data_iter_step, (images, labels) in enumerate(metric_logger.log_every(self.train_loader,
+                                                                                  print_freq, header)):
             images = images.to(self.device)
             labels = labels.to(self.device)
             self.optimizer.zero_grad()
@@ -37,34 +38,34 @@ class Trainer(object):
             loss = self.criterion(categorical_probs, labels)
 
             loss.backward()
-            self.status['loss'] = loss.item()
             self.optimizer.step()
-            train_epoch_iterator.set_description(
-                "Training (Epoch %d) (loss=%2.5f)" % (self.status['epoch_id'], self.status['loss'])
-            )
 
-            self.metric.update(categorical_probs, labels)
+            metric_logger.update(loss=loss.item())
+            metric_logger.update(acc=self.metric(categorical_probs, labels))
+        print("Averaged stats:", metric_logger)
 
     def val_epoch(self):
+        metric_logger = MetricLogger(logger=logger, delimiter=" ")
+        metric_logger.add_meter('loss', SmoothedValue(window_size=len(self.train_loader), fmt='{value:.6f}'))
+        metric_logger.add_meter('acc', SmoothedValue(window_size=len(self.train_loader), fmt='{value:.2f}'))
+        header = "Test: "
+
         self.model.eval()
-        val_epoch_iterator = tqdm(self.val_loader,
-                                  desc="Validating (X / X Steps) (loss=X.X)",
-                                  bar_format="{l_bar}{r_bar}",
-                                  dynamic_ncols=True)
 
         with torch.no_grad():
-            for images, labels in val_epoch_iterator:
-                self.status['step_val_id'] += 1
+            for images, labels in metric_logger.log_every(self.val_loader, 10, header):
                 images = images.to(self.device)
                 labels = labels.to(self.device)
                 categorical_probs = self.model(images)
 
                 loss = self.criterion(categorical_probs, labels)
-                self.status['loss'] = loss.item()
-                val_epoch_iterator.set_description(
-                    "Validating (Epoch %d) (loss=%2.5f)" % (self.status['epoch_id'], self.status['loss'])
-                )
-                self.metric.update(categorical_probs, labels)
+                metric_logger.update(loss=loss.item())
+                metric_logger.meters['acc'].update(self.metric(categorical_probs, labels))
+
+        self.status['val_acc'] = metric_logger.acc.global_average
+        print('* Acc {acc.global_average:.3f} loss {loss.global_average:.3f}'.format(
+            acc=metric_logger.acc, loss=metric_logger.loss
+        ))
 
 
 def do_train(cfg, model, checkpoint_saver, train_loader, val_loader, criterion,
@@ -75,37 +76,23 @@ def do_train(cfg, model, checkpoint_saver, train_loader, val_loader, criterion,
     epochs = cfg.SOLVER.NUM_EPOCHS
 
     engine.status.update({
-        'epoch_id': 0,
-        'step_id': 0,
-        'step_train_id': 0,
-        'step_val_id': 0,
+        'epoch': 0,
         'steps_per_train_epoch': len(train_loader),
         'steps_per_val_epoch': len(val_loader),
-        'learning_rate': cfg.SOLVER.LR
+        'lr': cfg.SOLVER.LR
     })
 
     for epoch_id in range(epochs):
-        engine.status['epoch_id'] += 1
-        engine.status['step_id'] += 1
+        engine.status['epoch'] += 1
 
         engine.status['mode'] = 'train'
-        log(logger, cfg, engine.status)
         engine.train_epoch()
-        metric.accumulate()
-        engine.status['train_accuracy'] = metric.get_results()
-        logger.info('Training: ' + metric.log())
-        metric.reset()
 
         engine.status['mode'] = 'eval'
-        log(logger, cfg, engine.status)
         engine.val_epoch()
-        metric.accumulate()
-        engine.status['val_accuracy'] = metric.get_results()
-        logger.info('Validating: ' + metric.log(logger))
-        metric.reset()
 
-        checkpoint_saver.save_checkpoint(epoch=engine.status['epoch_id'],
-                                         metric=engine.status['val_accuracy'])
+        checkpoint_saver.save_checkpoint(epoch=engine.status['epoch'],
+                                         metric=engine.status['val_acc'])
 
 
 if __name__ == '__main__':
