@@ -21,6 +21,7 @@ $ python train.py
     <td>Backbones</td>
     <td>Loss functions</td>
     <td>Optimizers</td>
+    <td>Augmentations</td>
 </tr>
 <tr valign="top">
     <td>
@@ -35,7 +36,15 @@ $ python train.py
     </ul>
     </td>
     <td>
+    <ul>
         <li>Adam</li>
+    </ul>
+    </td>
+    <ul>
+        <li>RandAug</li>
+    </ul>
+    <td>
+        
     </td>
 </tr>
 </table>
