@@ -1,7 +1,7 @@
 opencv-python
 torch
 torchvision
-tqdm
 yacs
 scikit-learn
 numpy
+pillow

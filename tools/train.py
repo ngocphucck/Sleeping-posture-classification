@@ -12,7 +12,8 @@ from src.models import efficientnet, convnext
 
 
 def main(cfg):
-    model = create_model(cfg.MODEL.NAME, cfg.MODEL.PRETRAINED)
+    model = create_model(cfg.MODEL.NAME, cfg.MODEL.PRETRAINED,
+                         num_classes=cfg.MODEL.NUM_CLASSES).to(cfg.SOLVER.DEVICE)
     criterion = CrossEntropyLoss()
 
     train_loader = make_loader(cfg, fold_number=1, mode='train')

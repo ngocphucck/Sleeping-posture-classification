@@ -9,10 +9,8 @@ from configs.defaults import get_cfg_defaults
 def make_transforms(cfg, mode='train'):
     if mode == 'train':
         transform = T.Compose([
-            HistogramEqualization(),
-            Cutout(cfg.AUGMENTATION.CUTOUT.MASK_SIZE, cfg.AUGMENTATION.CUTOUT.PROB,
-                   cfg.AUGMENTATION.CUTOUT.CUTOUT_INSIDE, cfg.AUGMENTATION.CUTOUT.MASK_COLOR),
             T.ToPILImage(),
+            RandAugment(n=cfg.AUGMENTATION.RAND_N, m=cfg.AUGMENTATION.RAND_M),
             ColorConvert(),
             Resize(cfg.AUGMENTATION.RESIZE.SIZE),
             T.ToTensor(),

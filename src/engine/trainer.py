@@ -24,8 +24,8 @@ class Trainer(object):
     def train_epoch(self):
         self.model.train()
         metric_logger = MetricLogger(logger=logger, delimiter=" ")
-        metric_logger.add_meter('loss', SmoothedValue(window_size=len(self.train_loader), fmt='{value:.6f}'))
-        metric_logger.add_meter('acc', SmoothedValue(window_size=len(self.train_loader), fmt='{value:.4f}'))
+        metric_logger.add_meter('loss', SmoothedValue(window_size=len(self.train_loader), fmt='{global_avg:.6f}'))
+        metric_logger.add_meter('acc', SmoothedValue(window_size=len(self.train_loader), fmt='{global_avg:.4f}'))
         header = 'Epoch: [{}]'.format(self.status['epoch'])
         print_freq = 10
 
@@ -52,8 +52,8 @@ class Trainer(object):
 
     def val_epoch(self):
         metric_logger = MetricLogger(logger=logger, delimiter=" ")
-        metric_logger.add_meter('loss', SmoothedValue(window_size=len(self.train_loader), fmt='{value:.6f}'))
-        metric_logger.add_meter('acc', SmoothedValue(window_size=len(self.train_loader), fmt='{value:.2f}'))
+        metric_logger.add_meter('loss', SmoothedValue(window_size=len(self.train_loader), fmt='{global_avg:.6f}'))
+        metric_logger.add_meter('acc', SmoothedValue(window_size=len(self.train_loader), fmt='{global_avg:.4f}'))
         header = "Test: "
 
         self.model.eval()
@@ -66,10 +66,10 @@ class Trainer(object):
 
                 loss = self.criterion(categorical_probs, labels)
                 metric_logger.update(loss=loss.item())
-                metric_logger.meters['acc'].update(self.metric(categorical_probs, labels))
+                metric_logger.update(acc=self.metric(categorical_probs, labels))
 
         self.status['val_acc'] = metric_logger.acc.global_average
-        print('* Acc {acc.global_average:.3f} loss {loss.global_average:.3f}'.format(
+        print('* Acc {acc.global_average:.4f} loss {loss.global_average:.4f}'.format(
             acc=metric_logger.acc, loss=metric_logger.loss
         ))
 
