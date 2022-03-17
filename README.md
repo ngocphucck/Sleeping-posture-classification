@@ -40,11 +40,10 @@ $ python train.py
         <li>Adam</li>
     </ul>
     </td>
+    <td>
     <ul>
         <li>RandAug</li>
     </ul>
-    <td>
-        
     </td>
 </tr>
 </table>
