@@ -73,4 +73,7 @@ python train.py
 
 - [ ] Multiple extractors 
 - [ ] Data augmentations 
-- [ ] Multiple loss functions 
+- [ ] Multiple loss functions
+- [ ] Experiment managment
+- [ ] Edge devices deployment
+- [ ] Distributed computing 
