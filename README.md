@@ -7,6 +7,7 @@
 </ul>
 
 <h2>Installation</h2>
+
 - Clone this repository:
 
 ```bash
