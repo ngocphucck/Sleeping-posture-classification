@@ -15,14 +15,14 @@ git clone https://github.com/ngocphucck/IR-pose-classification
 cd IR-pose-classification
 ```
 
-- Install dependencies: Please type the command `pip install -r requirements.txt`
+- Install dependencies: Please type the command `pip install -r requirements.txt`.
 
 
 <h2>Implementations</h2>
 
-- Firstly, you have to prepare your annotations. I recommend that you organize your labelling file into 2 files: `train.json` and `val.json` with the form `image_path: label`
+- Firstly, you have to prepare your annotations. I recommend that you organize your labelling file into 2 files: `train.json` and `val.json` with the form `image_path: label`.
 - After that, you can define some parameters in your method. There are 2 options for you to do that:
-    - Change parameters in `defaults.py`
+    - Change parameters in `defaults.py`.
     - Another way is to be more flexible. You'll create YAML configuration files; typically, you'll make one for each experiment. But, when actually implementing, you need to merge this `.yaml` file with `defaults.py.` The following code makes this action:
     
     ```python
