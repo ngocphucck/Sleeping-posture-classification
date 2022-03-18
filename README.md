@@ -76,4 +76,5 @@ python train.py
 - [ ] Multiple loss functions
 - [ ] Experiment managment
 - [ ] Edge devices deployment
+- [ ] UI demo/Docker resource
 - [ ] Distributed computing 
