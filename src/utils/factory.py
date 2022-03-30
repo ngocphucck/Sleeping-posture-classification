@@ -4,7 +4,7 @@ from .helpers import load_checkpoint
 
 def create_model(
     model_name,
-    pretrained=False,
+    pretrained=None,
     checkpoint_path='',
     **kwargs
 ):

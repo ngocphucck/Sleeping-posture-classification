@@ -5,3 +5,4 @@ yacs
 scikit-learn
 numpy
 pillow
+torchsummary

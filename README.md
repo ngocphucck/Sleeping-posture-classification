@@ -47,8 +47,10 @@ python train.py
 <tr valign="top">
     <td>
     <ul>
-        <li>Efficientnet</li>
-        <li>ConvNeXt</li>
+        <li><a href="https://arxiv.org/abs/1905.11946">Efficientnet</a></li>
+        <li><a href="https://arxiv.org/abs/2201.03545">ConvNeXt</a></li>
+        <li><a href="https://arxiv.org/abs/1911.11907">Ghostnet</a></li>
+        <li>Ghost-efficientnetv2</li>
     </ul>
     </td>
     <td>
@@ -71,7 +73,7 @@ python train.py
 
 <h2>Future works</h2>
 
-- [ ] Multiple extractors 
+- [x] Multiple backbones
 - [ ] Data augmentations 
 - [ ] Multiple loss functions
 - [ ] Experiment managment

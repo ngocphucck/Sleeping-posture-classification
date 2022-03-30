@@ -556,3 +556,37 @@ def load_pretrained_weights(model, model_name, weights_path=None, load_fc=True, 
 
     if verbose:
         print('Loaded pretrained weights for {}'.format(model_name))
+
+###################################################
+def _make_divisible(v, divisor, min_value=None):
+    """ Ensures that all layers have a channel number that is divisible by 8
+    It can be seen in: https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet/mobilenet.py
+    """
+    if min_value is None:
+        min_value = divisor
+
+    new_v = max(min_value, int(v + divisor / 2) // divisor * divisor)
+    if new_v < 0.9 * v:
+        new_v += divisor
+
+    return new_v
+
+
+def hard_swish(x, inplace: bool = False):
+    if inplace:
+        return x.add_(3.).clamp_(0., 6.).div_(6.)
+    else:
+        return (torch.nn.ReLU6()(x + 3.) * x) / 6.
+
+
+def hard_sigmoid(x):
+
+    return torch.nn.functional.hardsigmoid(x)
+
+
+def round_filter(filters, multiplier=1.0):
+    divisor = 8
+    min_depth = 8
+    filters = filters * multiplier
+    new_filters = max(min_depth, int(filters + divisor/2)//divisor * divisor)
+    return new_filters

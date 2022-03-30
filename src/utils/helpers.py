@@ -21,6 +21,13 @@ def load_checkpoint(model, checkpoint_path, strict=True):
     model.load_state_dict(state_dict, strict)
 
 
+def copy_folder(source_fold, destination_fold):
+    os.system('cp -R --attributes-only ' + source_fold + ' ' + destination_fold)
+    os.system('find ' + destination_fold + ' -type f -exec rm {} \;')
+
+    print('Copy complete!')
+
+
 def read_json(json_path):
     with open(json_path, 'r') as f:
         data = json.load(f)

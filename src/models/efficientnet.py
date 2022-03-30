@@ -385,4 +385,4 @@ def efficientnet_b0(model_name='efficientnet-b0', pretrained=False, **kwargs):
 
 if __name__ == '__main__':
     model = create_model('efficientnet_b0', pretrained=False, num_classes=9)
-    print(model)
+    summary(model, input_size=(3, 120, 160), batch_size=2)
