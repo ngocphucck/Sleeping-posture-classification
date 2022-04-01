@@ -5,7 +5,7 @@ from torch import nn
 from torchvision.ops import StochasticDepth
 from torchsummary import summary
 
-from ghostnet import GhostModule, SELayer
+from .ghostnet import GhostModule, SELayer
 from .helpers import round_filter, _make_divisible
 from src.utils import register_model, create_model
 
@@ -25,7 +25,7 @@ class GhostMBConv(nn.Module):
         self.survival = survival
 
         if stride == 2:
-            self.average_pooling = nn.AdaptiveAvgPool2d(output_size=(1, 1))
+            self.average_pooling = nn.AvgPool2d(kernel_size=(2, 2), ceil_mode=True)
         if in_channels != out_channels:
             self.shortcut = GhostModule(in_channels, out_channels, kernel_size=1, stride=1)
 
@@ -100,7 +100,7 @@ class GhostFusedMBConv(torch.nn.Module):
         self.survival = survival
 
         if stride == 2:
-            self.average_pooling = nn.AdaptiveAvgPool2d(output_size=(1, 1))
+            self.average_pooling = nn.AvgPool2d(kernel_size=(2, 2), ceil_mode=True)
         if in_channels != out_channels:
             self.shortcut = GhostModule(in_channels, out_channels, kernel_size=1, stride=1)
 
@@ -258,5 +258,5 @@ def ghost_efficientnet_v2_s(**kwargs):
 if __name__ == '__main__':
     model = create_model('ghost_efficientnet_v2_s', num_classes=9, width_mult=1.0, depth_mult=1.0,
                          conv_dropout_rate=0.2, dropout_rate=0.2, drop_connect=None)
-    print(model)
+    summary(model, input_size=(3, 120, 64), batch_size=2)
     pass
