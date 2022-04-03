@@ -62,3 +62,18 @@ class Cutout(object):
         image[xmin:xmax, ymin:ymax] = self.mask_color
 
         return image
+
+
+class LoG(object):
+    def __init__(self, kernel_size=(3, 3), ddepth=cv2.CV_8U):
+        self.kernel_size = kernel_size
+        self.ddepth = ddepth
+
+    def __call__(self, x):
+        x = cv2.GaussianBlur(x, ksize=self.kernel_size, sigmaX=0)
+        x = cv2.cvtColor(x, cv2.COLOR_BGR2GRAY)
+        x = cv2.Laplacian(x, ddepth=self.ddepth, ksize=self.kernel_size[0])
+        x = cv2.convertScaleAbs(x)
+        x = cv2.cvtColor(x, cv2.COLOR_GRAY2BGR)
+
+        return x
